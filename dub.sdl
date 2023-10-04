@@ -1,0 +1,6 @@
+name "tshare"
+description "A minimal client for transfer.sh"
+authors "Andrea Fontana"
+copyright "Copyright © 2023, Andrea Fontana"
+license "MIT"
+postBuildCommands "echo '\n👇👇 Install Now! 👇👇\n\nsudo ln -s /usr/local/bin/tshare $ROOT_PACKAGE_DIR/tshare\n'" platform="posix"

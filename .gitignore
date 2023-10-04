@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/tshare
+tshare.so
+tshare.dylib
+tshare.dll
+tshare.a
+tshare.lib
+tshare-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
