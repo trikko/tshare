@@ -2,7 +2,7 @@
 
 A simple CLI tool for [transfer.sh](https://transfer.sh)
 
-![tshare](https://github.com/trikko/tshare/assets/647157/392cd79f-56ea-4674-90af-28b431dd2bcf)
+![tshare](https://github.com/trikko/tshare/assets/647157/65a2e5c4-3614-409d-a66f-54aac57f7688)
 
 # examples
 
