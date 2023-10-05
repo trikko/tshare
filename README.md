@@ -28,5 +28,5 @@ dub build tshare
 
 ### install (on Linux, MacOS, ...)
 ```bash
-ln -s /usr/local/bin/tshare $PWD/tshare
+cp tshare /usr/local/bin
 ```
