@@ -41,10 +41,10 @@ int main(string[] args)
 				maxDays == size_t.max
 				&& maxDownloads == size_t.max
 				&& args.length == 1
-				&& deleteUrl.match(deleteUrlRegex)
+				&& (("https://transfer.sh/" ~ deleteUrl).match(deleteUrlRegex))
 		)
 		{
-			auto http = HTTP(deleteUrl);
+			auto http = HTTP("https://transfer.sh/" ~ deleteUrl);
 
 			// Ignore output
 			http.onReceive(  (ubyte[] data) { return data.length; });
@@ -82,7 +82,7 @@ int main(string[] args)
 
 	if(!valid)
 	{
-		stderr.writeln("Usage: tshare [-d max-downloads] [-t max-days] <local-file-path> [remote-file-name]\n       tshare -r <deletion-url>\n       tshare --version");
+		stderr.writeln("Usage: tshare [-d max-downloads] [-t max-days] <local-file-path> [remote-file-name]\n       tshare -r <token>\n       tshare --version");
 		return 0;
 	}
 
@@ -149,7 +149,7 @@ int main(string[] args)
 		writeln("\r\x1b[1mLink:\x1b[32m ", url, " \x1b[0m");
 
 	if(deleteUrl.match(deleteUrlRegex))
-		writeln("\r\x1b[1mTo remove:\x1b[0m tshare -r ", deleteUrl);
+		writeln("\r\x1b[1mTo remove:\x1b[0m tshare -r ", deleteUrl["https://transfer.sh/".length .. $]);
 
 	return 0;
 
