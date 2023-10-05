@@ -16,7 +16,7 @@ keep file online for two days / max 10 downloads
 tshare -t 2 -d 10 /path/to/file
 ```
 
-# installation
+# install with homebrew
 
 If you have ```homebrew``` on your MacOS/Linux, you can install ```tshare``` using a local formula:
 
@@ -24,15 +24,22 @@ If you have ```homebrew``` on your MacOS/Linux, you can install ```tshare``` usi
 HOMEBREW_NO_INSTALL_FROM_API=1 brew install --build-from-source ./tshare.rb
 ```
 
+You're done 🎉 
+
+Run ```tshare -h```, star this repository and have fun. 
+
 # build from source
 
-Of course you need a [dlang compiler](https://dlang.org/download.html#dmd), then:
+_If you don't have homebrew_, you need a dlang compiler to compile tshare by yourself.
 
+### install a dlang compiler
+- Ubuntu: ```sudo apt install dub ldc libcurl-dev```
+- macOS: ```brew install ldc dub```
+
+*or* download a package from [here](https://dlang.org/download.html#dmd)
+
+### compile tshare
 ```d
 dub build tshare
-```
-
-### install (on Linux, MacOS, ...)
-```bash
 cp tshare /usr/local/bin
 ```
