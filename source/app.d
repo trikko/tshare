@@ -1,4 +1,5 @@
 import std;
+import core.atomic, core.thread;
 
 immutable VERSION = "tshare/1.0";
 immutable VERSION_EXT = "tshare/1.0 (https://github.com/trikko/tshare)";
@@ -19,6 +20,12 @@ int main(string[] args)
 	size_t 	maxDownloads = size_t.max;
 	size_t 	maxDays = size_t.max;
 	bool		printVersion;
+
+	shared size_t		statsData = 0;
+	shared size_t[10]	statsHistory;
+	shared size_t		statsHistoryIdx = 0;
+
+	shared float		speed = float.nan;
 
 	try {
 		auto info = getopt(
@@ -94,6 +101,36 @@ int main(string[] args)
 		return 0;
 	}
 
+	bool uploading = true;
+	scope(exit) uploading = false;
+
+	// Thread for speed stats
+	new Thread({
+
+		auto started = Clock.currTime;
+
+		while(uploading)
+		{
+			Thread.sleep(500.msecs);
+
+			auto last = atomicLoad(statsData);
+			statsHistory[statsHistoryIdx] = last;
+
+			if (Clock.currTime - started > 5.seconds)
+			{
+				size_t total = 0;
+				auto startIdx = (statsHistoryIdx + 1) % 10;
+
+				foreach(i; 0..4)
+					total += statsHistory[(startIdx+i+1) % 10] - statsHistory[(startIdx+i) % 10];
+
+				atomicStore(speed, total/5.0f);
+			}
+
+			statsHistoryIdx = (statsHistoryIdx + 1) % 10;
+		}
+	}).start();
+
 	// Here we go. Check the file to upload.
 	File file = File(path);
 	size_t fileSize = file.size;
@@ -136,8 +173,33 @@ int main(string[] args)
 
 	http.onProgress = (size_t dltotal, size_t dlnow, size_t ultotal, size_t ulnow)
 	{
-		if (fileSize < size_t.max) stderr.write(format("\r\x1b[1mUpload:\x1b[0m %0.1f%%  ", (ulnow*1.0f/fileSize)*100.0f));
-		else stderr.write(format("\r\x1b[1mUpload:\x1b[0m %s bytes", ulnow));
+		atomicStore(statsData, ulnow);
+
+		immutable um = ["b/s", "Kb/s", "Mb/s", "Gb/s"];
+		auto umIdx = 0;
+		auto curSpeed = atomicLoad(speed);
+
+		if (!curSpeed.isNaN)
+		{
+			while(curSpeed > 1024 && umIdx < um.length)
+			{
+				curSpeed /= 1024;
+				umIdx++;
+			}
+		}
+
+		if (fileSize < size_t.max)
+		{
+			if (ulnow == fileSize) stderr.write("\x1b[2K\r\x1b[1mUpload completed. Waiting for link...\x1b[0m");
+			else if (curSpeed.isNaN) stderr.write(format("\x1b[2K\r\x1b[1mProgress:\x1b[0m %5.1f%% \x1b[1m", (ulnow*1.0f/fileSize)*100.0f));
+			else stderr.write(format("\x1b[2K\r\x1b[1mProgress:\x1b[0m %5.1f%% \x1b[1m\tSpeed:\x1b[0m %6.1f %s", (ulnow*1.0f/fileSize)*100.0f, curSpeed, um[umIdx]));
+		}
+		else
+		{
+			if (curSpeed.isNaN) stderr.write(format("\x1b[2K\r\x1b[1mProgress:\x1b[0m %s bytes", ultotal));
+			else stderr.write(format("\x1b[2K\r\x1b[1mProgress:\x1b[0m %s bytes \x1b[1m\tSpeed:\x1b[0m %6.1f %s", ultotal, curSpeed, um[umIdx]));
+		}
+
 		return 0;
 	};
 
@@ -156,6 +218,7 @@ int main(string[] args)
 	}
 
 	// ALL DONE!
+	uploading = false;
 	auto url = (cast(char[])response).to!string;
 	stderr.write("\r\x1b[1mUpload:\x1b[0m Completed. Yay!");
 
