@@ -18,9 +18,15 @@ tshare -t 2 -d 10 /path/to/file
 
 # installation
 
-Of course you need a [dlang compiler](https://dlang.org/download.html#dmd)
+If you have ```homebrew``` on your MacOS/Linux, you can install ```tshare``` using a local formula:
 
-### build
+```
+HOMEBREW_NO_INSTALL_FROM_API=1 brew install --build-from-source ./tshare.rb
+```
+
+# build from source
+
+Of course you need a [dlang compiler](https://dlang.org/download.html#dmd), then:
 
 ```d
 dub build tshare
