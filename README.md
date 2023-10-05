@@ -1,6 +1,6 @@
 # tshare
 
-A simple CLI tool for [transfer.sh](https://transfer.sh)
+The fastest way to share your local files on the web. Powered by [transfer.sh](https://transfer.sh)
 
 ![tshare](https://github.com/trikko/tshare/assets/647157/fd66bb95-a78c-41a6-bca6-e3ba736edcab)
 
