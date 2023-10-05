@@ -30,9 +30,9 @@ int main(string[] args)
 	try {
 		auto info = getopt(
 			args,
-			"d", "Max downloads",  &maxDownloads,
-			"t", "Lifetime in days",   &maxDays,
-			"r", "Remove an upload, using a token", &deleteUrl,
+			"d", &maxDownloads,
+			"t", &maxDays,
+			"r", &deleteUrl,
 			"version", "Print version", &printVersion
 		);
 
@@ -54,7 +54,7 @@ int main(string[] args)
 			auto http = HTTP("https://transfer.sh/" ~ deleteUrl);
 
 			// Ignore output
-			http.onReceive(  (ubyte[] data) { return data.length; });
+			http.onReceive = (ubyte[] data) { return data.length; };
 
 			// HTTP DELETE
 			http.method = HTTP.Method.del;
@@ -97,7 +97,16 @@ int main(string[] args)
 
 	if(!valid)
 	{
-		stderr.writeln("Usage: tshare [-d max-downloads] [-t max-days] <local-file-path> [remote-file-name]\n       tshare -r <token>\n       tshare --version");
+		stderr.writeln("\x1b[32mFast file sharing, using transfer.sh\x1b[0m\n\x1b[1mhttps://github.com/trikko/tshare\x1b[0m\n\n\x1b[32mUsage:\x1b[0m
+tshare \x1b[2m[-d max-downloads] [-t time-to-live-in-days]\x1b[0m <local-file-path> \x1b[2m[remote-file-name]\x1b[0m
+tshare -r <token>
+tshare --version
+
+\x1b[32mExamples:\x1b[0m
+tshare /tmp/file1.txt              \x1b[1m# Share /tmp/file1.txt\x1b[0m
+tshare -t 3 /tmp/file2.txt         \x1b[1m# This file will be deleted in 3 days\x1b[0m
+tshare /tmp/file3.txt hello.txt    \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
+");
 		return 0;
 	}
 
