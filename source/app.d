@@ -137,7 +137,7 @@ int main(string[] args)
 
 	if (code != 0 || http.statusLine.code != 200)
 	{
-		stderr.writeln("\r\x1b[1mUpload:\x1b[31m Failed. Error during upload.\x1b[0m (Return code: ", code,  " / HTTP ", http.statusLine.code, ")");
+		stderr.writeln("\r\x1b[1mUpload:\x1b[31m Failed.\x1b[0m Error during upload. (Return code: ", code,  " / HTTP ", http.statusLine.code, ")");
 		return code;
 	}
 
