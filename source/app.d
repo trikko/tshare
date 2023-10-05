@@ -53,10 +53,18 @@ int main(string[] args)
 			http.method = HTTP.Method.del;
 			auto r = http.perform(No.throwOnError);
 
-			if (r == 0 && http.statusLine.code == 200) stderr.writeln("\x1b[1mFile deleted.\x1b[0m");
-			else stderr.writeln("\x1b[1m\x1b[31mError deleting.\x1b[0m (Curl error: ", r, " / HTTP ", http.statusLine.code, ")");
+			if (r != 0) {
+				stderr.writeln("\x1b[1m\x1b[31mError deleting\x1b[0m (CURL error: ", r, ")");
+				return -1;
+			}
 
-			return r;
+			if (http.statusLine.code != 200) {
+				stderr.writeln("\x1b[1m\x1b[31mError deleting\x1b[0m (HTTP status: ", http.statusLine.code, ")");
+				return -2;
+			}
+
+			stderr.writeln("\x1b[1mFile deleted.\x1b[0m");
+			return 0;
 		}
 
 		// Normal run -->
@@ -135,10 +143,16 @@ int main(string[] args)
 
 	auto code = http.perform(No.throwOnError);
 
-	if (code != 0 || http.statusLine.code != 200)
+	if (code != 0)
 	{
-		stderr.writeln("\r\x1b[1m\x1b[31mUpload failed.\x1b[0m (Curl error: ", code,  " / HTTP ", http.statusLine.code, ")");
-		return code;
+		stderr.writeln("\r\x1b[1m\x1b[31mUpload failed\x1b[0m (CURL error: ", code, ")");
+		return -1;
+	}
+
+	if (http.statusLine.code != 200)
+	{
+		stderr.writeln("\r\x1b[1m\x1b[31mUpload failed\x1b[0m (HTTP status: ", http.statusLine.code, ")");
+		return -2;
 	}
 
 	// ALL DONE!
