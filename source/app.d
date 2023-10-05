@@ -53,8 +53,8 @@ int main(string[] args)
 			http.method = HTTP.Method.del;
 			auto r = http.perform(No.throwOnError);
 
-			if (r == 0 && http.statusLine.code == 200) stderr.writeln("File deleted.");
-			else stderr.writeln("Error deleting. (Return code: ", r, " / HTTP ", http.statusLine.code, ")");
+			if (r == 0 && http.statusLine.code == 200) stderr.writeln("\x1b[1mFile deleted.\x1b[0m");
+			else stderr.writeln("\x1b[1m\x1b[31mError deleting.\x1b[0m (Curl error: ", r, " / HTTP ", http.statusLine.code, ")");
 
 			return r;
 		}
@@ -137,7 +137,7 @@ int main(string[] args)
 
 	if (code != 0 || http.statusLine.code != 200)
 	{
-		stderr.writeln("\r\x1b[1mUpload:\x1b[31m Failed.\x1b[0m Error during upload. (Return code: ", code,  " / HTTP ", http.statusLine.code, ")");
+		stderr.writeln("\r\x1b[1m\x1b[31mUpload failed.\x1b[0m (Curl error: ", code,  " / HTTP ", http.statusLine.code, ")");
 		return code;
 	}
 
