@@ -16,6 +16,11 @@ keep file online for two days / max 10 downloads
 tshare -t 2 -d 10 /path/to/file
 ```
 
+encrypt with gpg if installed on your system
+```bash
+tshare -c your-secret-password /path/to/file
+```
+
 # install with homebrew
 
 If you have ```homebrew``` on your MacOS/Linux, you can install ```tshare``` using a local formula:
