@@ -6,7 +6,6 @@ immutable VERSION_EXT = "tshare/1.0 (https://github.com/trikko/tshare)";
 
 int main(string[] args)
 {
-
 	// Simple checks on url format
 	immutable urlRegex = "^https://transfer.sh/[a-z0-9A-Z]+/[^/]+$";
 	immutable deleteUrlRegex = "^https://transfer.sh/[a-z0-9A-Z]+/[^/]+/[a-z0-9A-Z]+$";
@@ -33,7 +32,8 @@ int main(string[] args)
 			"d", &maxDownloads,
 			"t", &maxDays,
 			"r", &deleteUrl,
-			"version", "Print version", &printVersion
+			"silent", &silent,
+			"version", &printVersion
 		);
 
 		// --version
@@ -60,17 +60,20 @@ int main(string[] args)
 			http.method = HTTP.Method.del;
 			auto r = http.perform(No.throwOnError);
 
-			if (r != 0) {
-				stderr.writeln("\x1b[1m\x1b[31mError deleting\x1b[0m (CURL error: ", r, ")");
+			if (r != 0)
+			{
+				stderr_writeln("\x1b[1m\x1b[31mError deleting\x1b[0m (CURL error: ", r, ")");
 				return -1;
 			}
 
-			if (http.statusLine.code != 200) {
-				stderr.writeln("\x1b[1m\x1b[31mError deleting\x1b[0m (HTTP status: ", http.statusLine.code, ")");
+			if (http.statusLine.code != 200)
+			{
+				stderr_writeln("\x1b[1m\x1b[31mError deleting\x1b[0m (HTTP status: ", http.statusLine.code, ")");
 				return -2;
 			}
 
-			stderr.writeln("\x1b[1mFile deleted.\x1b[0m");
+			stderr_writeln("\x1b[1mFile deleted.\x1b[0m");
+
 			return 0;
 		}
 
@@ -98,8 +101,8 @@ int main(string[] args)
 	if(!valid)
 	{
 		stderr.writeln("\x1b[32mFast file sharing, using transfer.sh\x1b[0m\n\x1b[1mhttps://github.com/trikko/tshare\x1b[0m\n\n\x1b[32mUsage:\x1b[0m
-tshare \x1b[2m[-d max-downloads] [-t time-to-live-in-days]\x1b[0m <local-file-path> \x1b[2m[remote-file-name]\x1b[0m
-tshare -r <token>
+tshare \x1b[2m[-d max-downloads] [-t time-to-live-in-days] [--silent]\x1b[0m <local-file-path> \x1b[2m[remote-file-name]\x1b[0m
+tshare \x1b[2m[--silent]\x1b[0m -r <token>
 tshare --version
 
 \x1b[32mExamples:\x1b[0m
@@ -182,6 +185,9 @@ tshare /tmp/file3.txt hello.txt    \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 
 	http.onProgress = (size_t dltotal, size_t dlnow, size_t ultotal, size_t ulnow)
 	{
+		if (silent)
+			return 0;
+
 		atomicStore(statsData, ulnow);
 
 		immutable um = ["b/s", "Kb/s", "Mb/s", "Gb/s"];
@@ -216,27 +222,41 @@ tshare /tmp/file3.txt hello.txt    \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 
 	if (code != 0)
 	{
-		stderr.writeln("\r\x1b[1m\x1b[31mUpload failed\x1b[0m (CURL error: ", code, ")");
+		stderr_writeln("\r\x1b[1m\x1b[31mUpload failed\x1b[0m (CURL error: ", code, ")");
 		return -1;
 	}
 
 	if (http.statusLine.code != 200)
 	{
-		stderr.writeln("\r\x1b[1m\x1b[31mUpload failed\x1b[0m (HTTP status: ", http.statusLine.code, ")");
+		stderr_writeln("\r\x1b[1m\x1b[31mUpload failed\x1b[0m (HTTP status: ", http.statusLine.code, ")");
 		return -2;
 	}
 
 	// ALL DONE!
 	uploading = false;
 	auto url = (cast(char[])response).to!string;
-	stderr.write("\r\x1b[1mUpload:\x1b[0m Completed. Yay!");
 
-	if (url.match(urlRegex))
+	if (!url.match(urlRegex) || !deleteUrl.match(deleteUrlRegex))
+	{
+		stderr_writeln("\r\x1b[1m\x1b[31mUpload failed\x1b[0m (bad data from server)");
+		return -3;
+	}
+
+	if (!silent)
+	{
+		stderr_write("\r\x1b[1mUpload:\x1b[0m Completed. Yay!");
 		writeln("\r\x1b[1mLink:\x1b[32m ", url, " \x1b[0m");
-
-	if(deleteUrl.match(deleteUrlRegex))
 		writeln("\r\x1b[1mTo remove:\x1b[0m tshare -r ", deleteUrl["https://transfer.sh/".length .. $]);
+	}
+	else {
+		writeln(url);
+		writeln("tshare -r ", deleteUrl["https://transfer.sh/".length .. $]);
+	}
 
 	return 0;
-
 }
+
+bool silent = false; // --silent switch
+void stderr_writeln(T...)(T p) { if (!silent) stderr.writeln(p); }
+void stderr_write(T...)(T p) { if (!silent) stderr.write(p); }
+
