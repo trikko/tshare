@@ -40,6 +40,6 @@ _If you don't have homebrew_, you need a dlang compiler to compile tshare by you
 
 ### compile tshare
 ```d
-dub build tshare
+dub build
 cp tshare /usr/local/bin
 ```
