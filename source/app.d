@@ -6,6 +6,18 @@ immutable VERSION_EXT = "tshare/1.0 (https://github.com/trikko/tshare)";
 
 int main(string[] args)
 {
+	// Password privacy
+	foreach(k,v; args)
+	{
+		if (v == "-c" || v == "--crypt" && k+1 < args.length)
+		{
+			import core.runtime : Runtime;
+
+			auto p = args[k+1];
+			Runtime.cArgs.argv[k+1][0..p.length][] = repeat('*').take(p.length).array[];
+		}
+	}
+
 	// Simple checks on url format
 	immutable urlRegex = "^https://transfer.sh/[a-z0-9A-Z]+/[^/]+$";
 	immutable deleteUrlRegex = "^https://transfer.sh/[a-z0-9A-Z]+/[^/]+/[a-z0-9A-Z]+$";
