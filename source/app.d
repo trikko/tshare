@@ -193,8 +193,30 @@ tshare /tmp/file3.txt hello.txt    \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 
 		// Temporary and anonymous file, without even a name.
 		auto buffer = File.tmpfile();
-		auto pipes = spawnProcess(["gpg", "-c", "--batch", "--passphrase", crypt, "-o", "-"], file, buffer, File.tmpfile(), string[string].init, Config.retainStdout);
-		int r = pipes.wait();
+		auto pid = spawnProcess(["gpg", "-c", "--batch", "--passphrase", crypt, "-o", "-"], file, buffer, File.tmpfile(), string[string].init, Config.retainStdout);
+
+		while(!pid.tryWait.terminated)
+		{
+			if (!buffer.isOpen) break;
+
+			size_t done;
+			try { done = buffer.tell*100;}
+			catch(Exception e) { break; }
+
+			immutable sizes = ["bytes", "KB", "MB", "GB", "TB"];
+			size_t curSize;
+			foreach(k, s; sizes)
+			{
+				curSize = k;
+				if (done > 1024*100) done /= 1024;
+				else break;
+			}
+
+			stderr.write("\x1b[2K\r\x1b[1mEncrypting, please wait...\x1b[0m " ~ format("%.2f", done*1.0f/100) ~ " " ~ sizes[curSize]);
+			Thread.sleep(500.msecs);
+		}
+
+		int r = pid.wait();
 		file = buffer;
 		file.rewind();
 	}
@@ -245,7 +267,7 @@ tshare /tmp/file3.txt hello.txt    \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 
 		atomicStore(statsData, ulnow);
 
-		immutable um = ["b/s", "Kb/s", "Mb/s", "Gb/s"];
+		immutable um = ["B/s", "KB/s", "MB/s", "GB/s"];
 		auto umIdx = 0;
 		auto curSpeed = atomicLoad(speed);
 
