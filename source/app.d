@@ -19,6 +19,7 @@ int main(string[] args)
 	size_t 	maxDownloads = size_t.max;
 	size_t 	maxDays = size_t.max;
 	bool		printVersion;
+	string	crypt = string.init;
 
 	shared size_t		statsData = 0;
 	shared size_t[10]	statsHistory;
@@ -31,8 +32,9 @@ int main(string[] args)
 			args,
 			"d", &maxDownloads,
 			"t", &maxDays,
-			"r", &deleteUrl,
-			"silent", &silent,
+			"r|remove", &deleteUrl,
+			"c|crypt", &crypt,
+			"s|silent", &silent,
 			"version", &printVersion
 		);
 
@@ -78,10 +80,7 @@ int main(string[] args)
 		}
 
 		// Normal run -->
-		if (args.length < 2 || args.length > 3 || info.helpWanted)
-		{
-			valid = false;
-		}
+		if (args.length < 2 || args.length > 3 || info.helpWanted) valid = false;
 		else
 		{
 			// Getting args
@@ -101,9 +100,16 @@ int main(string[] args)
 	if(!valid)
 	{
 		stderr.writeln("\x1b[32mFast file sharing, using transfer.sh\x1b[0m\n\x1b[1mhttps://github.com/trikko/tshare\x1b[0m\n\n\x1b[32mUsage:\x1b[0m
-tshare \x1b[2m[--silent] [-d max-downloads] [-t time-to-live-in-days]\x1b[0m <local-file-path> \x1b[2m[remote-file-name]\x1b[0m
-tshare \x1b[2m[--silent]\x1b[0m -r <token>
+tshare <local-file-path> \x1b[2m[remote-file-name] [-d max-downloads] [-t time-to-live-in-days] [--crypt passphrase] [--silent]\x1b[0m
+tshare -r <token> \x1b[2m[--silent]\x1b[0m
 tshare --version
+
+\x1b[32mOptions:\x1b[0m
+ \x1b[1m-d\x1b[0m             Set the max number of downloads for this file.
+ \x1b[1m-t\x1b[0m             Set the lifetime of this file.
+ \x1b[1m-c, --crypt\x1b[0m    Crypt your file using gpg, if installed.
+ \x1b[1m-s, --silent\x1b[0m   Less verbose, minimal output.
+ \x1b[1m-r, --remove\x1b[0m   Delete and uploaded file, using a token.
 
 \x1b[32mExamples:\x1b[0m
 tshare /tmp/file1.txt              \x1b[1m# Share /tmp/file1.txt\x1b[0m
@@ -111,6 +117,29 @@ tshare -t 3 /tmp/file2.txt         \x1b[1m# This file will be deleted in 3 days\
 tshare /tmp/file3.txt hello.txt    \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 ");
 		return 0;
+	}
+
+	// Check if gpg is available
+	if (crypt.length > 0)
+	{
+		bool hasgpg = false;
+		auto result = execute(["gpg", "--version"]);
+
+		if (result.status == 0)
+		{
+			auto lsplit = result.output.split("\n");
+			if (lsplit.length > 0)
+			{
+				auto vsplit = lsplit[0].split(" ");
+				if (vsplit.length > 0 && vsplit[$-1].startsWith("2.")) hasgpg = true;
+			}
+		}
+
+		if (!hasgpg)
+		{
+			stderr_writeln("\r\x1b[1m\x1b[31mCan't crypt data\x1b[0m (gpg >= 2.0.0 not found)");
+			return -4;
+		}
 	}
 
 	bool uploading = true;
@@ -145,7 +174,21 @@ tshare /tmp/file3.txt hello.txt    \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 
 	// Here we go. Check the file to upload.
 	File file = File(path);
+
+	if (crypt.length > 0)
+	{
+		stderr.write("\x1b[2K\r\x1b[1mEncrypting, please wait...\x1b[0m");
+
+		// Temporary and anonymous file, without even a name.
+		auto buffer = File.tmpfile();
+		auto pipes = spawnProcess(["gpg", "-c", "--batch", "--passphrase", crypt, "-o", "-"], file, buffer, File.tmpfile(), string[string].init, Config.retainStdout);
+		int r = pipes.wait();
+		file = buffer;
+		file.rewind();
+	}
+
 	size_t fileSize = file.size;
+	scope(exit) file.close();
 
 	// Build the request
 	auto http = HTTP("https://transfer.sh/" ~ destName);
