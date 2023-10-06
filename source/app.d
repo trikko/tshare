@@ -9,7 +9,7 @@ int main(string[] args)
 	// Password privacy
 	foreach(k,v; args)
 	{
-		if (v == "-c" || v == "--crypt" && k+1 < args.length)
+		if ((v == "-c" || v == "--crypt") && k+1 < args.length)
 		{
 			import core.runtime : Runtime;
 
