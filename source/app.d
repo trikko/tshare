@@ -101,7 +101,7 @@ int main(string[] args)
 	if(!valid)
 	{
 		stderr.writeln("\x1b[32mFast file sharing, using transfer.sh\x1b[0m\n\x1b[1mhttps://github.com/trikko/tshare\x1b[0m\n\n\x1b[32mUsage:\x1b[0m
-tshare \x1b[2m[-d max-downloads] [-t time-to-live-in-days] [--silent]\x1b[0m <local-file-path> \x1b[2m[remote-file-name]\x1b[0m
+tshare \x1b[2m[--silent] [-d max-downloads] [-t time-to-live-in-days]\x1b[0m <local-file-path> \x1b[2m[remote-file-name]\x1b[0m
 tshare \x1b[2m[--silent]\x1b[0m -r <token>
 tshare --version
 
