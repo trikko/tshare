@@ -41,7 +41,7 @@ _If you don't have homebrew_, you need a dlang compiler to compile tshare by you
 - Ubuntu: ```sudo apt install dub ldc libcurl-dev```
 - macOS: ```brew install ldc dub```
 
-*or* download a package from [here](https://dlang.org/download.html#dmd)
+*or* download an official package [here](https://dlang.org/download.html#dmd)
 
 ### compile tshare
 ```d
