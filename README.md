@@ -23,10 +23,12 @@ encrypt with gpg if installed on your system
 tshare -c your-secret-password /path/to/file
 ```
 
-# experimental builds
-On [releases](https://github.com/trikko/tshare/releases) page you can find experimental binaries for [Windows](https://github.com/trikko/tshare/releases/latest/download/tshare-windows-x86_64.zip), [Linux](https://github.com/trikko/tshare/releases/latest/download/tshare-linux-x86_64.zip) and [macOS](https://github.com/trikko/tshare/releases/latest/download/tshare-macos-x86_64.zip).
+# pre-builds binaries
+[![Windows](https://img.shields.io/badge/-Windows_x64-blue.svg?style=for-the-badge&logo=windows)](https://github.com/trikko/tshare/releases/latest/download/tshare-windows-x86_64.zip)
+[![Unix](https://img.shields.io/badge/-Linux-red.svg?style=for-the-badge&logo=linux)](https://github.com/trikko/tshare/releases/latest/download/tshare-linux-x86_64.zip)
+[![MacOS](https://img.shields.io/badge/-MacOS-lightblue.svg?style=for-the-badge&logo=apple)](https://github.com/trikko/tshare/releases/latest/download/tshare-macos-x86_64.zip).
 
-I didn't test them: feedbacks are welcome :)
+I didn't test the binaries so much: feedbacks are welcome :)
 
 # install with homebrew (Linux, macOS)
 
