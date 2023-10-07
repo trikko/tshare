@@ -135,17 +135,20 @@ tshare /tmp/file3.txt hello.txt    \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 	if (crypt.length > 0)
 	{
 		bool hasgpg = false;
-		auto result = execute(["gpg", "--version"]);
 
-		if (result.status == 0)
-		{
-			auto lsplit = result.output.split("\n");
-			if (lsplit.length > 0)
+		try {
+			auto result = execute(["gpg", "--version"]);
+
+			if (result.status == 0)
 			{
-				auto vsplit = lsplit[0].split(" ");
-				if (vsplit.length > 0 && vsplit[$-1].startsWith("2.")) hasgpg = true;
+				auto lsplit = result.output.split("\n");
+				if (lsplit.length > 0)
+				{
+					auto vsplit = lsplit[0].split(" ");
+					if (vsplit.length > 0 && vsplit[$-1].startsWith("2.")) hasgpg = true;
+				}
 			}
-		}
+		} catch(Exception e) { hasgpg = false; }
 
 		if (!hasgpg)
 		{
