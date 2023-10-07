@@ -58,5 +58,4 @@ download an official package [here](https://dlang.org/download.html#dmd)
 ### compile tshare
 ```d
 dub build
-cp tshare /usr/local/bin
 ```
