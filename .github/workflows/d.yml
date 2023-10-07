@@ -36,6 +36,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: tshare
+          path: tshare
           
       - name: Run tests
         run: dub build --build=release
