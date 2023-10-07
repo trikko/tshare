@@ -1,6 +1,6 @@
 # tshare
 
-The fastest way to share your local files on the web (Windows / Linux / macOS). Powered by [transfer.sh](https://transfer.sh)
+The fastest way to share your local files on the web (Windows / Linux / macOS), for free. Powered by [transfer.sh](https://transfer.sh) online service.
 
 ![tshare](https://github.com/trikko/tshare/assets/647157/fd66bb95-a78c-41a6-bca6-e3ba736edcab)
 
