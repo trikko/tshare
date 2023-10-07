@@ -1,8 +1,8 @@
 class Tshare < Formula
   desc "Share files from CLI, using transfer.sh"
   homepage "https://github.com/trikko/tshare"
-  url "https://github.com/trikko/tshare/archive/refs/tags/v1.0.5.tar.gz"
-  sha256 "d89a209654942360c1d9bebf1b0b65c062686b213425fcf6df8466d1dd6613f8"
+  url "https://github.com/trikko/tshare/archive/refs/tags/v1.0.6.tar.gz"
+  sha256 "e7729ec97ed7c174aaf8d33a7d7a53f53690792a27558cb33651fd81cdc14bcd"
   license "MIT"
   head "https://github.com/trikko/tshare.git", branch: "main"
 
