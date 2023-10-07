@@ -25,12 +25,17 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install D compiler
         uses: dlang-community/setup-dlang@v1
         with:
           compiler: ${{ matrix.dc }}
-
+          
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: tshare
+          
       - name: Run tests
         run: dub build --build=release
