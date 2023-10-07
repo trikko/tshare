@@ -23,6 +23,11 @@ encrypt with gpg if installed on your system
 tshare -c your-secret-password /path/to/file
 ```
 
+# experimental builds
+On [releases](https://github.com/trikko/tshare/releases) page you can find experimental binaries for [Windows](https://github.com/trikko/tshare/releases/latest/download/tshare-windows-x86_64.zip), [Linux](https://github.com/trikko/tshare/releases/latest/download/tshare-linux-x86_64.zip) and [macOS](https://github.com/trikko/tshare/releases/latest/download/tshare-macos-x86_64.zip).
+
+I didn't test them: feedbacks are welcome :)
+
 # install with homebrew (Linux, macOS)
 
 If you have ```homebrew``` on your MacOS/Linux, you can install ```tshare``` using a local formula:
