@@ -32,11 +32,12 @@ jobs:
         with:
           compiler: ${{ matrix.dc }}
           
+      - name: Build
+        run: dub build --build=release
+        
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
           name: tshare
-          path: tshare
-          
-      - name: Run tests
-        run: dub build --build=release
+          path: tshare*
+    
