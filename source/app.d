@@ -286,7 +286,7 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 	scope(exit) file.close();
 
 	// Build the request
-	auto http = HTTP("https://transfer.sh/" ~ destName);
+	auto http = HTTP("https://transfer.sh/" ~ encodeComponent(destName));
 
 	if(maxDays < size_t.max)
 		http.addRequestHeader("max-days", maxDays.to!string);
