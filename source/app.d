@@ -1,8 +1,8 @@
 import std;
 import core.atomic, core.thread;
 
-immutable VERSION = "tshare/1.0";
-immutable VERSION_EXT = "tshare/1.0 (https://github.com/trikko/tshare)";
+immutable VERSION = "tshare/1.1";
+immutable VERSION_EXT = "tshare/1.1 (https://github.com/trikko/tshare)";
 
 int main(string[] args)
 {
@@ -22,16 +22,18 @@ int main(string[] args)
 	immutable urlRegex = "^https://transfer.sh/[a-z0-9A-Z]+/[^/]+$";
 	immutable deleteUrlRegex = "^https://transfer.sh/[a-z0-9A-Z]+/[^/]+/[a-z0-9A-Z]+$";
 
-	bool 		valid = true;
+	bool 		showHelp = false;
 
 	string	path;			// The file you're uploading
 	string	destName;	// Sometimes you want to change the name of remote file
 	string 	deleteUrl;	// If you want to delete an upload file
 
-	size_t 	maxDownloads = size_t.max;
-	size_t 	maxDays = size_t.max;
-	bool		printVersion;
-	string	crypt = string.init;
+	size_t 	maxDownloads 	= size_t.max;
+	size_t 	maxDays 			= size_t.max;
+	bool		printVersion	= false;
+	bool		fromStdin		= false;
+	string	crypt 			= string.init;
+	string 	output			= string.init;
 
 	shared size_t		statsData = 0;
 	shared size_t[10]	statsHistory;
@@ -44,89 +46,130 @@ int main(string[] args)
 			args,
 			"d", &maxDownloads,
 			"t", &maxDays,
+			"o|output", &output,
+			"stdin", &fromStdin,
 			"r|remove", &deleteUrl,
 			"c|crypt", &crypt,
 			"s|silent", &silent,
 			"version", &printVersion
 		);
 
+		size_t commands = 0;
+
+		// They ask --help
+		showHelp = info.helpWanted;
+
+		// You can't mix different commands
+		if (!showHelp)
+		{
+			if (!deleteUrl.empty) commands++;
+
+			if (
+				maxDownloads != size_t.max || maxDays != size_t.max
+				|| !crypt.empty || !output.empty || fromStdin || args.length == 2
+			) commands++;
+
+			if (printVersion) commands++;
+
+			if (commands != 1)
+				showHelp = true;
+		}
+
 		// --version
-		if (printVersion)
+		if (!showHelp && printVersion)
 		{
-			writeln(VERSION_EXT);
-			return 0;
-		}
-
-		// tshare -r https://transfer.sh/.../
-		if (
-				maxDays == size_t.max
-				&& maxDownloads == size_t.max
-				&& args.length == 1
-				&& (("https://transfer.sh/" ~ deleteUrl).match(deleteUrlRegex))
-		)
-		{
-			auto http = HTTP("https://transfer.sh/" ~ deleteUrl);
-
-			// Ignore output
-			http.onReceive = (ubyte[] data) { return data.length; };
-
-			// HTTP DELETE
-			http.method = HTTP.Method.del;
-			auto r = http.perform(No.throwOnError);
-
-			if (r != 0)
+			if (args.length == 1)
 			{
-				stderr_writeln("\x1b[1m\x1b[31mError deleting\x1b[0m (CURL error: ", r, ")");
-				return -1;
+				writeln(VERSION_EXT);
+				return 0;
 			}
 
-			if (http.statusLine.code != 200)
-			{
-				stderr_writeln("\x1b[1m\x1b[31mError deleting\x1b[0m (HTTP status: ", http.statusLine.code, ")");
-				return -2;
-			}
-
-			stderr_writeln("\x1b[1mFile deleted.\x1b[0m");
-
-			return 0;
+			showHelp = true;
 		}
 
-		// Normal run -->
-		if (args.length < 2 || args.length > 3 || info.helpWanted) valid = false;
-		else
+		// -r https://transfer.sh/.../
+		if (!showHelp && !deleteUrl.empty)
 		{
-			// Getting args
-			path = absolutePath(args[1]);
-			destName = baseName(path);
+			if (args.length == 1 && match("https://transfer.sh/" ~ deleteUrl, deleteUrlRegex))
+			{
+				auto http = HTTP("https://transfer.sh/" ~ deleteUrl);
 
-			if (args.length == 3) destName = args[2];
+				// Ignore output
+				http.onReceive = (ubyte[] data) { return data.length; };
 
-			// Extra checks
-			if (!path.exists || !isFile(path))
-				valid = false;
+				// HTTP DELETE
+				http.method = HTTP.Method.del;
+				auto r = http.perform(No.throwOnError);
+
+				if (r != 0)
+				{
+					stderr_writeln("\x1b[1m\x1b[31mError deleting\x1b[0m (CURL error: ", r, ")");
+					return -1;
+				}
+
+				if (http.statusLine.code != 200)
+				{
+					stderr_writeln("\x1b[1m\x1b[31mError deleting\x1b[0m (HTTP status: ", http.statusLine.code, ")");
+					return -2;
+				}
+
+				stderr_writeln("\x1b[1mFile deleted.\x1b[0m");
+				return 0;
+			}
+
+			showHelp = true;
+		}
+
+		// --stdin
+		if (!showHelp && fromStdin)
+		{
+			if (!output.empty) destName = output;
+			else showHelp = true;
+		}
+
+		// from file
+		else if (!showHelp)
+		{
+			if(args.length >= 2 && args.length <= 3)
+			{
+				// Getting args
+				path = absolutePath(args[1]);
+				destName = baseName(path);
+
+				if (!output.empty) destName = output;
+
+				// Extra checks
+				if (!path.exists || !isFile(path))
+					showHelp = true;
+			}
+
+			else showHelp = true;
 		}
 
 	}
-	catch(Exception e) { valid = false; }
+	catch(Exception e) { showHelp = true; }
 
-	if(!valid)
+	if(showHelp)
 	{
 		stderr.writeln("\x1b[32mFast file sharing, using transfer.sh\x1b[0m\n\x1b[1mhttps://github.com/trikko/tshare\x1b[0m\n\n\x1b[32mUsage:\x1b[0m
-tshare <local-file-path> \x1b[2m[remote-file-name] [-d max-downloads] [-t time-to-live-in-days] [--crypt passphrase] [--silent]\x1b[0m
+tshare <local-file-path> \x1b[2m[-o remote-file-name] [-d max-downloads] [-t time-to-live-in-days] [--crypt passphrase] [--silent]\x1b[0m
+tshare --stdin -o <remote-file-name> \x1b[2m[-d max-downloads] [-t time-to-live-in-days] [--crypt passphrase] [--silent]\x1b[0m
 tshare -r <token> \x1b[2m[--silent]\x1b[0m
 tshare --version
 
 \x1b[32mOptions:\x1b[0m
  \x1b[1m-d\x1b[0m             Set the max number of downloads for this file.
  \x1b[1m-t\x1b[0m             Set the lifetime of this file.
+ \x1b[1m-o, --output\x1b[0m   Set the filename used for sharing.
+ \x1b[1m    --stdin\x1b[0m    Read input from stdin.
  \x1b[1m-c, --crypt\x1b[0m    Crypt your file using gpg, if installed.
  \x1b[1m-s, --silent\x1b[0m   Less verbose, minimal output.
  \x1b[1m-r, --remove\x1b[0m   Delete and uploaded file, using a token.
 
 \x1b[32mExamples:\x1b[0m
-tshare /tmp/file1.txt              \x1b[1m# Share /tmp/file1.txt\x1b[0m
-tshare -t 3 /tmp/file2.txt         \x1b[1m# This file will be deleted in 3 days\x1b[0m
-tshare /tmp/file3.txt hello.txt    \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
+tshare /tmp/file1.txt                \x1b[1m# Share /tmp/file1.txt\x1b[0m
+tshare -t 3 /tmp/file2.txt           \x1b[1m# This file will be deleted in 3 days\x1b[0m
+tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 ");
 		return 0;
 	}
@@ -188,7 +231,10 @@ tshare /tmp/file3.txt hello.txt    \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 	}).start();
 
 	// Here we go. Check the file to upload.
-	File file = File(path);
+	File file;
+
+	if (fromStdin) file = stdin;
+	else file = File(path);
 
 	if (crypt.length > 0)
 	{
