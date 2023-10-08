@@ -18,7 +18,7 @@ keep file online for two days / max 10 downloads
 tshare -t 2 -d 10 /path/to/file
 ```
 
-encrypt with gpg if installed on your system
+encrypt using [gpg](https://gnupg.org/download/index.html) if installed on your system
 ```bash
 tshare -c your-secret-password /path/to/file
 ```
