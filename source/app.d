@@ -18,6 +18,19 @@ int main(string[] args)
 		}
 	}
 
+	// Enable terminal colors on older windows
+	version(Windows)
+	{
+		import core.sys.windows.windows;
+
+		DWORD dwMode;
+		HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE), hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		GetConsoleMode(hOutput, &dwMode);
+      dwMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+   	writeln(SetConsoleMode(hOutput, dwMode));
+	}
+
 	// Simple checks on url format
 	immutable urlRegex = "^https://transfer.sh/[a-z0-9A-Z]+/[^/]+$";
 	immutable deleteUrlRegex = "^https://transfer.sh/[a-z0-9A-Z]+/[^/]+/[a-z0-9A-Z]+$";
