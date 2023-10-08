@@ -24,7 +24,7 @@ int main(string[] args)
 		import core.sys.windows.windows;
 
 		DWORD dwMode;
-		HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE), hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+		HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 
 		GetConsoleMode(hOutput, &dwMode);
       dwMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
