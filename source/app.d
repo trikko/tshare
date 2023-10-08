@@ -4,6 +4,14 @@ import core.atomic, core.thread;
 immutable VERSION = "tshare/1.1";
 immutable VERSION_EXT = "tshare/1.1 (https://github.com/trikko/tshare)";
 
+enum RuntimeErrors
+{
+	CurlError 		= -1,
+	HttpError 		= -2,
+	BadReply 		= -3,
+	GpgNotFound 	= -4
+}
+
 int main(string[] args)
 {
 	// Password privacy
@@ -116,13 +124,13 @@ int main(string[] args)
 				if (r != 0)
 				{
 					stderr_writeln("\x1b[1m\x1b[31mError deleting\x1b[0m (CURL error: ", r, ")");
-					return -1;
+					return RuntimeErrors.CurlError;
 				}
 
 				if (http.statusLine.code != 200)
 				{
 					stderr_writeln("\x1b[1m\x1b[31mError deleting\x1b[0m (HTTP status: ", http.statusLine.code, ")");
-					return -2;
+					return RuntimeErrors.HttpError;
 				}
 
 				stderr_writeln("\x1b[1mFile deleted.\x1b[0m");
@@ -208,7 +216,7 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 		if (!hasgpg)
 		{
 			stderr_writeln("\r\x1b[1m\x1b[31mCan't crypt data\x1b[0m (gpg >= 2.0.0 not found)");
-			return -4;
+			return RuntimeErrors.GpgNotFound;
 		}
 	}
 
@@ -361,13 +369,13 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 	if (code != 0)
 	{
 		stderr_writeln("\r\x1b[1m\x1b[31mUpload failed\x1b[0m (CURL error: ", code, ")");
-		return -1;
+		return RuntimeErrors.CurlError;
 	}
 
 	if (http.statusLine.code != 200)
 	{
 		stderr_writeln("\r\x1b[1m\x1b[31mUpload failed\x1b[0m (HTTP status: ", http.statusLine.code, ")");
-		return -2;
+		return RuntimeErrors.HttpError;
 	}
 
 	// ALL DONE!
@@ -377,7 +385,7 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 	if (!url.match(urlRegex) || !deleteUrl.match(deleteUrlRegex))
 	{
 		stderr_writeln("\r\x1b[1m\x1b[31mUpload failed\x1b[0m (bad data from server)");
-		return -3;
+		return RuntimeErrors.BadReply;
 	}
 
 	if (!silent)
