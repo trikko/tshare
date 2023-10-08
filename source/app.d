@@ -36,6 +36,7 @@ int main(string[] args)
 
 		GetConsoleMode(hOutput, &dwMode);
       dwMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+		SetConsoleMode(hOutput, dwMode);
 	}
 
 	// Simple checks on url format
