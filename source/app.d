@@ -393,7 +393,7 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 	{
 		stderr_write("\r\x1b[1mUpload:\x1b[0m Completed. Yay!");
 		writeln("\r\x1b[1mLink:\x1b[32m ", url, " \x1b[0m");
-		writeln("\r\x1b[1mTo remove:\x1b[0m tshare -r ", deleteUrl["https://transfer.sh/".length .. $]);
+		writeln("\r\x1b[1mTo remove:\x1b[0m " ~ baseName(args[0]) ~ " -r ", deleteUrl["https://transfer.sh/".length .. $]);
 	}
 	else {
 		writeln(url);
