@@ -1,10 +1,16 @@
-# tshare
+# tshare [![BUILD](https://github.com/trikko/tshare/actions/workflows/d.yml/badge.svg)](https://github.com/trikko/tshare/actions/workflows/d.yml)
 
 The fastest way to share your local files on the web (Windows / Linux / macOS), for free. 
 
 Powered by [transfer.sh](https://transfer.sh) online service.
 
 ![tshare](https://github.com/trikko/tshare/assets/647157/fd66bb95-a78c-41a6-bca6-e3ba736edcab)
+
+# get tshare 🚀
+
+Linux: ```curl -Lo pkg.zip tshare.download/linux``` \
+macOS: ```curl -Lo pkg.zip tshare.download/macos``` \
+Windows: ```curl -Lo pkg.zip tshare.download/windows```
 
 # examples
 
@@ -28,9 +34,9 @@ tshare -c your-secret-password /path/to/file
 [![Unix](https://img.shields.io/badge/-Linux-red.svg?style=for-the-badge&logo=linux)](https://github.com/trikko/tshare/releases/latest/download/tshare-linux-x86_64.zip)
 [![MacOS](https://img.shields.io/badge/-MacOS-lightblue.svg?style=for-the-badge&logo=apple)](https://github.com/trikko/tshare/releases/latest/download/tshare-macos-x86_64.zip).
 
-I didn't test the binaries so much: feedbacks are welcome :)
+Binaries are experimental: feedbacks are welcome :)
 
-# install with homebrew (Linux, macOS)
+# install with homebrew (Linux, macOS) 🍺
 
 If you have ```homebrew``` on your MacOS/Linux, you can install ```tshare``` using a local formula:
 
