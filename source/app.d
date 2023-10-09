@@ -9,7 +9,8 @@ enum RuntimeErrors
 	CurlError 		= -1,
 	HttpError 		= -2,
 	BadReply 		= -3,
-	GpgNotFound 	= -4
+	GpgNotFound 	= -4,
+	CurlNotFound	= -5
 }
 
 int main(string[] args)
@@ -37,6 +38,16 @@ int main(string[] args)
 		GetConsoleMode(hOutput, &dwMode);
       dwMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 		SetConsoleMode(hOutput, dwMode);
+	}
+
+	// Check if curl is available
+	{
+		try { auto test = HTTP("https://example.org"); }
+		catch (CurlException e)
+		{
+			stderr_writeln("\r\x1b[1m\x1b[31mError: libcurl not found.\x1b[0m Install curl/libcurl on your system");
+			return RuntimeErrors.CurlNotFound;
+		}
 	}
 
 	// Simple checks on url format
@@ -201,7 +212,10 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 		bool hasgpg = false;
 
 		try {
+			writeln(1);
 			auto result = execute(["gpg", "--version"]);
+			writeln(result.status);
+			writeln(result.output);
 
 			if (result.status == 0)
 			{
@@ -214,6 +228,7 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 			}
 		} catch(Exception e) { hasgpg = false; }
 
+		writeln(hasgpg);
 		if (!hasgpg)
 		{
 			stderr_writeln("\r\x1b[1m\x1b[31mCan't crypt data\x1b[0m (gpg >= 2.0.0 not found)");
