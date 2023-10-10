@@ -133,7 +133,7 @@ int main(string[] args)
 			{
 				import std.digest.sha : SHA256;
 
-				File myself = File(args[0], "r");
+				File myself = File(thisExePath, "r");
 				SHA256 sha;
 				ubyte[4096] data;
 
