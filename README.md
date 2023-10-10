@@ -28,6 +28,11 @@ encrypt using [gpg](https://gnupg.org/download/index.html) if installed on your 
 tshare -c your-secret-password /path/to/file
 ```
 
+save a copy of your mysql db 
+```bash
+mysqldump wordpress_db | tshare --stdin -c secret_password -o export.sql 
+```
+
 # pre-builds binaries
 [![Windows](https://img.shields.io/badge/-Windows_x64-blue.svg?style=for-the-badge&logo=windows)](https://github.com/trikko/tshare/releases/latest/download/tshare-windows-x86_64.zip)
 [![Unix](https://img.shields.io/badge/-Linux-red.svg?style=for-the-badge&logo=linux)](https://github.com/trikko/tshare/releases/latest/download/tshare-linux-x86_64.zip)
