@@ -44,11 +44,19 @@
             border-top-left-radius: 4px;
             user-select: none;
             font-size: 12px;
+            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+
         }
         .tab:hover {
             background-color: #444;
         }
+        .active-tab {
+            background-color: #444; 
+            /*color: #ffa500;*/
+            color: #5cd5fb;
+            animation: fade 0.3s ease-in-out;
 
+        }
         .code-container {
             background-color: #222;
             border: 1px solid #333;
@@ -124,8 +132,8 @@
     <div class="container">
         <h1>tshare</h1>
         <p>the fastest way to share your files on the web, for free</p>
-        <div class="tab" onclick="showCode('linux',true)">Linux / macOS</div>
-        <div class="tab"  onclick="showCode('win',true)">Windows</div>
+        <div class="tab" data-os="linux" onclick="showCode(this)">Linux / macOS</div>
+        <div class="tab" data-os="win" onclick="showCode(this)">Windows</div>
         <br>
         <div id="linux-code" class="code-container">
             <pre>$ curl https://tshare.download | bash<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" onclick="copyToClipboard('linux')" style="fill: white;float:right;cursor:pointer">
@@ -173,13 +181,27 @@ tshare /tmp/file3.txt -o hello.txt   # Uploaded as "hello.txt"
     <div id="snackbar">Copied!</div>
 
     <script>
-        function showCode(os) {
+        function showCode(tabElement) {
+            const os = tabElement.getAttribute('data-os'); 
             const codeContainers = document.querySelectorAll('.code-container');
             codeContainers.forEach(container => {
                 container.style.display = 'none';
             });
-            document.getElementById(`${os}-code`).style.display = 'block';
-            // copyToClipboard(os,mode);
+
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active-tab');
+            });
+
+            const codeElement = document.getElementById(`${os}-code`);
+            if (codeElement) {
+                codeElement.style.display = 'block';
+                const tabElement = document.querySelector(`.tab[data-os="${os}"]`);
+                if (tabElement) {
+                    tabElement.classList.add('active-tab');
+                }
+            }
+
         }
         function copyToClipboard(id) {
             const codeElement = document.getElementById(id + "-code").querySelector("code");
@@ -194,7 +216,9 @@ tshare /tmp/file3.txt -o hello.txt   # Uploaded as "hello.txt"
             x.className = "show";
             setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
         }
-        showCode('linux',false);
+        // Open Linux tab
+        const linuxTab = document.querySelector(`.tab[data-os="linux"]`);
+        showCode(linuxTab);
     </script>
 </body>
 </html>
