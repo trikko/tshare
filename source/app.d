@@ -1,5 +1,6 @@
 import std;
 import core.atomic, core.thread;
+import std.digest.sha;
 
 immutable VERSION = "tshare/1.1";
 immutable VERSION_EXT = "tshare/1.1 (https://github.com/trikko/tshare)";
@@ -11,7 +12,8 @@ enum RuntimeErrors
 	BadReply 		= -3,
 	GpgNotFound 	= -4,
 	CurlNotFound	= -5,
-	FileEmpty		= -6
+	FileEmpty		= -6,
+	CantUpgrade		= -7
 }
 
 int main(string[] args)
@@ -63,6 +65,7 @@ int main(string[] args)
 
 	size_t 	maxDownloads 	= size_t.max;
 	size_t 	maxDays 			= size_t.max;
+	bool		upgrade			= false;
 	bool		printVersion	= false;
 	bool		fromStdin		= false;
 	string	crypt 			= string.init;
@@ -84,6 +87,7 @@ int main(string[] args)
 			"r|remove", &deleteUrl,
 			"c|crypt", &crypt,
 			"s|silent", &silent,
+			"upgrade", &upgrade,
 			"version", &printVersion
 		);
 
@@ -104,6 +108,8 @@ int main(string[] args)
 
 			if (printVersion) commands++;
 
+			if (upgrade) commands++;
+
 			if (commands != 1)
 				showHelp = true;
 		}
@@ -114,6 +120,62 @@ int main(string[] args)
 			if (args.length == 1)
 			{
 				writeln(VERSION_EXT);
+				return 0;
+			}
+
+			showHelp = true;
+		}
+
+		// --version
+		if (!showHelp && upgrade)
+		{
+			if (args.length == 1)
+			{
+				import std.digest.sha : SHA256;
+
+				File myself = File(args[0], "r");
+				SHA256 sha;
+				ubyte[4096] data;
+
+				sha.start();
+				while(!myself.eof)
+				{
+					auto slice = myself.rawRead(data);
+					sha.put(slice);
+				}
+
+				string check;
+				string hash = sha.finish()[].toHexString().toLower();
+				stderr_writeln("\x1b[1mRunning version:\x1b[0m ", hash);
+
+				version(linux) auto uri = "tshare-linux-x86_64";
+				else version(Windows) auto uri = "tshare-windows-x86_64";
+				else version(OSX) auto uri = "tshare-macos-x86_64";
+				else auto uri = "";
+
+				uri = ("https://github.com/trikko/tshare/releases/latest/download/" ~ uri ~ ".sha256");
+
+
+				try {
+					check = cast(string) std.net.curl.get(uri).chomp;
+					stderr_writeln("\x1b[1mLatest version:\x1b[0m ", check, "\n");
+				}
+				catch (Exception e)
+				{
+					stderr_writeln("\x1b[1m\x1b[31mError: can't check for new updates.\x1b[0m");
+					return RuntimeErrors.CantUpgrade;
+				}
+
+				if (check != hash)
+				{
+					string upgradeCmd;
+					version(Windows) upgradeCmd = "curl -L https://tshare.download/windows.zip -o tshare.zip";
+					else upgradeCmd = "curl https://tshare.download | bash";
+
+					stderr_writeln("\x1b[32mNew version available, upgrade tshare now:\n\x1b[0m\x1b[1m", upgradeCmd, "\x1b[0m");
+				}
+				else stderr_writeln("\x1b[1mLatest version already installed.\x1b[0m");
+
 				return 0;
 			}
 
@@ -188,6 +250,7 @@ int main(string[] args)
 tshare <local-file-path> \x1b[2m[-o remote-file-name] [-d max-downloads] [-t time-to-live-in-days] [--crypt passphrase] [--silent]\x1b[0m
 tshare --stdin -o <remote-file-name> \x1b[2m[-d max-downloads] [-t time-to-live-in-days] [--crypt passphrase] [--silent]\x1b[0m
 tshare -r <token> \x1b[2m[--silent]\x1b[0m
+tshare --upgrade
 tshare --version
 
 \x1b[32mOptions:\x1b[0m
@@ -198,6 +261,7 @@ tshare --version
  \x1b[1m-c, --crypt\x1b[0m    Crypt your file using gpg, if installed.
  \x1b[1m-s, --silent\x1b[0m   Less verbose, minimal output.
  \x1b[1m-r, --remove\x1b[0m   Delete and uploaded file, using a token.
+ \x1b[1m    --upgrade\x1b[0m  Is there a new tshare version available?
 
 \x1b[32mExamples:\x1b[0m
 tshare /tmp/file1.txt                \x1b[1m# Share /tmp/file1.txt\x1b[0m

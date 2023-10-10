@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tShare</title>
+    <link href="https://fonts.cdnfonts.com/css/montserrat" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #5cd5fb;
+            font-family: Montserrat, sans-serif;
+        }
+        .container {
+            text-align: left;
+            padding:2rem;
+            background:#eee;
+            border-radius:0.5rem;
+            box-shadow: 2px 2px 50px 2px #4e93aa;
+        }
+        code {
+            display:none;
+        }
+        h1 {
+            margin:0;
+        }
+        p {
+            margin: 0 0 2rem 0  ;
+        }
+
+        .tab {
+            display: inline-block;
+            /* margin: 0 0 0 0px; */
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #333;
+            cursor: pointer;
+            border-top-right-radius: 4px;
+            border-top-left-radius: 4px;
+            user-select: none;
+            font-size: 12px;
+        }
+        .tab:hover {
+            background-color: #444;
+        }
+
+        .code-container {
+            background-color: #222;
+            border: 1px solid #333;
+            border-radius: 4px;
+            border-top-left-radius: 0;
+            padding: 10px 20px;
+            display: none;
+            width:600px;
+        }
+        .active {
+            display: block;
+        }
+        pre {
+            color: #5cd5fb;
+            font-family: 'Courier New', monospace;
+        }
+        pre.help {
+            font-size:10px;
+            color:#333;
+        }
+        .logo {
+            width:2rem;
+        }
+        .centered {
+            margin-top: 1.9rem;
+            text-align: center;
+        }
+
+	    #snackbar {
+            visibility: hidden;
+            min-width: 100px;
+            margin-left: -50px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 0.5rem;
+            padding: 10px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            font-size: 15px;
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            -webkit-animation: fadein 0.5s, fadeout 0.5s 2.7s;
+            animation: fadein 0.5s, fadeout 0.5s 2.7s;
+        }
+
+        @-webkit-keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+
+        @keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+
+        @-webkit-keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
+        }
+
+        @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>tshare</h1>
+        <p>the fastest way to share your files on the web, for free</p>
+        <div class="tab" onclick="showCode('linux',true)">Linux / macOS</div>
+        <div class="tab"  onclick="showCode('win',true)">Windows</div>
+        <br>
+        <div id="linux-code" class="code-container">
+            <pre>$ curl https://tshare.download | bash<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" onclick="copyToClipboard('linux')" style="fill: white;float:right;cursor:pointer">
+                <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+            </svg></pre>
+            <code>curl https://tshare.download | bash</code>
+        </div>
+        <div id="win-code" class="code-container">
+            <pre>&gt; curl -L https://tshare.download/windows.zip -o tshare.zip <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" onclick="copyToClipboard('win')" style="fill: white;float:right;cursor:pointer">
+                <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+            </svg></pre>
+            <code>curl -L https://tshare.download/windows.zip -o tshare.zip</code>
+        </div>
+        <pre class="help">
+
+
+<b>Usage:</b>
+tshare <local-file-path> [-o remote-file-name] [-d max-downloads] [-t time-to-live-in-days] [--crypt passphrase] [--silent]
+tshare --stdin -o <remote-file-name> [-d max-downloads] [-t time-to-live-in-days] [--crypt passphrase] [--silent]
+tshare -r <token> [--silent]
+tshare --version
+
+<b>Options:</b>
+-d             Set the max number of downloads for this file.
+-t             Set the lifetime of this file.
+-o, --output   Set the filename used for sharing.
+    --stdin    Read input from stdin.
+-c, --crypt    Crypt your file using gpg, if installed.
+-s, --silent   Less verbose, minimal output.
+-r, --remove   Delete and uploaded file, using a token.
+
+<b>Examples:</b>
+tshare /tmp/file1.txt                # Share /tmp/file1.txt
+tshare -t 3 /tmp/file2.txt           # This file will be deleted in 3 days
+tshare /tmp/file3.txt -o hello.txt   # Uploaded as "hello.txt"
+        </pre>
+
+        <div class="centered">
+            <a href="https://github.com/trikko/tshare"><img class="logo" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTgiIGhlaWdodD0iOTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik00OC44NTQgMEMyMS44MzkgMCAwIDIyIDAgNDkuMjE3YzAgMjEuNzU2IDEzLjk5MyA0MC4xNzIgMzMuNDA1IDQ2LjY5IDIuNDI3LjQ5IDMuMzE2LTEuMDU5IDMuMzE2LTIuMzYyIDAtMS4xNDEtLjA4LTUuMDUyLS4wOC05LjEyNy0xMy41OSAyLjkzNC0xNi40Mi01Ljg2Ny0xNi40Mi01Ljg2Ny0yLjE4NC01LjcwNC01LjQyLTcuMTctNS40Mi03LjE3LTQuNDQ4LTMuMDE1LjMyNC0zLjAxNS4zMjQtMy4wMTUgNC45MzQuMzI2IDcuNTIzIDUuMDUyIDcuNTIzIDUuMDUyIDQuMzY3IDcuNDk2IDExLjQwNCA1LjM3OCAxNC4yMzUgNC4wNzQuNDA0LTMuMTc4IDEuNjk5LTUuMzc4IDMuMDc0LTYuNi0xMC44MzktMS4xNDEtMjIuMjQzLTUuMzc4LTIyLjI0My0yNC4yODMgMC01LjM3OCAxLjk0LTkuNzc4IDUuMDE0LTEzLjItLjQ4NS0xLjIyMi0yLjE4NC02LjI3NS40ODYtMTMuMDM4IDAgMCA0LjEyNS0xLjMwNCAxMy40MjYgNS4wNTJhNDYuOTcgNDYuOTcgMCAwIDEgMTIuMjE0LTEuNjNjNC4xMjUgMCA4LjMzLjU3MSAxMi4yMTMgMS42MyA5LjMwMi02LjM1NiAxMy40MjctNS4wNTIgMTMuNDI3LTUuMDUyIDIuNjcgNi43NjMuOTcgMTEuODE2LjQ4NSAxMy4wMzggMy4xNTUgMy40MjIgNS4wMTUgNy44MjIgNS4wMTUgMTMuMiAwIDE4LjkwNS0xMS40MDQgMjMuMDYtMjIuMzI0IDI0LjI4MyAxLjc4IDEuNTQ4IDMuMzE2IDQuNDgxIDMuMzE2IDkuMTI2IDAgNi42LS4wOCAxMS44OTctLjA4IDEzLjUyNiAwIDEuMzA0Ljg5IDIuODUzIDMuMzE2IDIuMzY0IDE5LjQxMi02LjUyIDMzLjQwNS0yNC45MzUgMzMuNDA1LTQ2LjY5MUM5Ny43MDcgMjIgNzUuNzg4IDAgNDguODU0IDB6IiBmaWxsPSIjMjQyOTJmIi8+PC9zdmc+" alt="github logo"></a>
+        </div>
+
+
+    </div>
+
+    <div id="snackbar">Copied!</div>
+
+    <script>
+        function showCode(os) {
+            const codeContainers = document.querySelectorAll('.code-container');
+            codeContainers.forEach(container => {
+                container.style.display = 'none';
+            });
+            document.getElementById(`${os}-code`).style.display = 'block';
+            // copyToClipboard(os,mode);
+        }
+        function copyToClipboard(id) {
+            const codeElement = document.getElementById(id + "-code").querySelector("code");
+            const textArea = document.createElement('textarea');
+            textArea.value = codeElement.textContent.trim();
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            var x = document.getElementById("snackbar");
+            x.className = "show";
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
+        showCode('linux',false);
+    </script>
+</body>
+</html>
