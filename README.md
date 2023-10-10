@@ -9,7 +9,7 @@ The fastest way to share your local files on the web (Windows / Linux / macOS), 
 # get tshare 🚀
 
 Linux/macOS: ```curl https://tshare.download | bash``` \
-Windows: ```curl -Lo pkg.zip tshare.download/windows.zip```
+Windows: ```curl -L https://tshare.download/windows.zip -o tshare.zip```
 
 # examples
 
