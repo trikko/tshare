@@ -158,7 +158,7 @@ int main(string[] args)
 
 				try {
 					check = cast(string) std.net.curl.get(uri).chomp;
-					stderr_writeln("\x1b[1mLatest version:\x1b[0m ", check, "\n");
+					stderr_writeln("\x1b[1m Latest version:\x1b[0m ", check, "\n");
 				}
 				catch (Exception e)
 				{
@@ -172,9 +172,10 @@ int main(string[] args)
 					version(Windows) upgradeCmd = "curl -L https://tshare.download/windows.zip -o tshare.zip";
 					else upgradeCmd = "curl https://tshare.download | bash";
 
-					stderr_writeln("\x1b[32mNew version available, upgrade tshare now:\n\x1b[0m\x1b[1m", upgradeCmd, "\x1b[0m");
+					if (silent) writeln(upgradeCmd);
+					else writeln("\x1b[32mNew version available, upgrade tshare now:\n\x1b[0m\x1b[1m", upgradeCmd, "\x1b[0m");
 				}
-				else stderr_writeln("\x1b[1mLatest version already installed.\x1b[0m");
+				else stderr_writeln("\x1b[1mtshare is \x1b[32mup-to-date\x1b[0m");
 
 				return 0;
 			}
