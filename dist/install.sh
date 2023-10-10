@@ -1,3 +1,6 @@
+# To keep separated from curl log
+echo ""
+
 case "$OSTYPE" in
    linux*) PACKAGE="linux.tar.gz";;
    darwin*) PACKAGE="macos.tar.gz";;
