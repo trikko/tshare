@@ -3,7 +3,7 @@ import core.atomic, core.thread;
 import std.digest.sha;
 
 immutable VERSION = "tshare/1.1";
-immutable VERSION_EXT = "tshare/1.1 (https://github.com/trikko/tshare)";
+immutable VERSION_EXT = "tshare/1.1 (https://tshare.download)";
 
 enum RuntimeErrors
 {
@@ -247,7 +247,7 @@ int main(string[] args)
 
 	if(showHelp)
 	{
-		stderr.writeln("\x1b[32mFast file sharing, using transfer.sh\x1b[0m\n\x1b[1mhttps://github.com/trikko/tshare\x1b[0m\n\n\x1b[32mUsage:\x1b[0m
+		stderr.writeln("\x1b[32m" ~ VERSION_EXT ~ " \x1b[0m\nFast file sharing, using transfer.sh\x1b[0m\n\n\x1b[32mUsage:\x1b[0m
 tshare <local-file-path> \x1b[2m[-o remote-file-name] [-d max-downloads] [-t time-to-live-in-days] [--crypt passphrase] [--silent]\x1b[0m
 tshare --stdin -o <remote-file-name> \x1b[2m[-d max-downloads] [-t time-to-live-in-days] [--crypt passphrase] [--silent]\x1b[0m
 tshare -r <token> \x1b[2m[--silent]\x1b[0m
