@@ -10,7 +10,8 @@ enum RuntimeErrors
 	HttpError 		= -2,
 	BadReply 		= -3,
 	GpgNotFound 	= -4,
-	CurlNotFound	= -5
+	CurlNotFound	= -5,
+	FileEmpty		= -6
 }
 
 int main(string[] args)
@@ -212,10 +213,7 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 		bool hasgpg = false;
 
 		try {
-			writeln(1);
 			auto result = execute(["gpg", "--version"]);
-			writeln(result.status);
-			writeln(result.output);
 
 			if (result.status == 0)
 			{
@@ -228,7 +226,6 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 			}
 		} catch(Exception e) { hasgpg = false; }
 
-		writeln(hasgpg);
 		if (!hasgpg)
 		{
 			stderr_writeln("\r\x1b[1m\x1b[31mCan't crypt data\x1b[0m (gpg >= 2.0.0 not found)");
@@ -306,6 +303,7 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 		file.rewind();
 	}
 
+	bool	 isEmptyFile = true;
 	size_t fileSize = file.size;
 	scope(exit) file.close();
 
@@ -347,6 +345,9 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 
 	http.onProgress = (size_t dltotal, size_t dlnow, size_t ultotal, size_t ulnow)
 	{
+		if (isEmptyFile && ulnow > 0)
+			isEmptyFile = false;
+
 		if (silent)
 			return 0;
 
@@ -390,8 +391,16 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 
 	if (http.statusLine.code != 200)
 	{
-		stderr_writeln("\r\x1b[1m\x1b[31mUpload failed\x1b[0m (HTTP status: ", http.statusLine.code, ")");
-		return RuntimeErrors.HttpError;
+		if (isEmptyFile)
+		{
+			stderr_writeln("\r\x1b[1m\x1b[31mError: can't upload an empty file\x1b");
+			return RuntimeErrors.FileEmpty;
+		}
+		else
+		{
+			stderr_writeln("\r\x1b[1m\x1b[31mUpload failed\x1b[0m (HTTP status: ", http.statusLine.code, ")");
+			return RuntimeErrors.HttpError;
+		}
 	}
 
 	// ALL DONE!
@@ -418,7 +427,6 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 	return 0;
 }
 
-bool silent = false; // --silent switch
-void stderr_writeln(T...)(T p) { if (!silent) stderr.writeln(p); }
-void stderr_write(T...)(T p) { if (!silent) stderr.write(p); }
-
+bool 		silent = false; // --silent switch
+void stderr_writeln(T...)(T p) { if (!silent)  stderr.writeln(p, "\x1b[0K"); }
+void stderr_write(T...)(T p) { if (!silent) stderr.write(p, "\x1b[0K"); }
