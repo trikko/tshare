@@ -51,7 +51,7 @@
             background-color: #444;
         }
         .active-tab {
-            background-color: #444; 
+            background-color: #444;
             /*color: #ffa500;*/
             color: #5cd5fb;
             animation: fade 0.3s ease-in-out;
@@ -154,6 +154,7 @@
 tshare <local-file-path> [-o remote-file-name] [-d max-downloads] [-t time-to-live-in-days] [--crypt passphrase] [--silent]
 tshare --stdin -o <remote-file-name> [-d max-downloads] [-t time-to-live-in-days] [--crypt passphrase] [--silent]
 tshare -r <token> [--silent]
+tshare --upgrade
 tshare --version
 
 <b>Options:</b>
@@ -164,6 +165,7 @@ tshare --version
 -c, --crypt    Crypt your file using gpg, if installed.
 -s, --silent   Less verbose, minimal output.
 -r, --remove   Delete and uploaded file, using a token.
+    --upgrade  Is there a new tshare version available?
 
 <b>Examples:</b>
 tshare /tmp/file1.txt                # Share /tmp/file1.txt
@@ -182,7 +184,7 @@ tshare /tmp/file3.txt -o hello.txt   # Uploaded as "hello.txt"
 
     <script>
         function showCode(tabElement) {
-            const os = tabElement.getAttribute('data-os'); 
+            const os = tabElement.getAttribute('data-os');
             const codeContainers = document.querySelectorAll('.code-container');
             codeContainers.forEach(container => {
                 container.style.display = 'none';
