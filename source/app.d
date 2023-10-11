@@ -1,6 +1,7 @@
 import std;
 import core.atomic, core.thread;
 import std.digest.sha;
+import arsd.qrcode;
 
 immutable VERSION = "tshare/1.1";
 immutable VERSION_EXT = "tshare/1.1 (https://tshare.download)";
@@ -68,6 +69,7 @@ int main(string[] args)
 	bool		upgrade			= false;
 	bool		printVersion	= false;
 	bool		fromStdin		= false;
+	bool		qrcode 			= false;
 	string	crypt 			= string.init;
 	string 	output			= string.init;
 
@@ -76,6 +78,9 @@ int main(string[] args)
 	shared size_t		statsHistoryIdx = 0;
 
 	shared float		speed = float.nan;
+
+	version(Windows) 	immutable canDrawQR = false;
+	else 					immutable canDrawQR = environment.get("LANG", string.init).endsWith(".UTF-8");
 
 	try {
 		auto info = getopt(
@@ -88,7 +93,8 @@ int main(string[] args)
 			"c|crypt", &crypt,
 			"s|silent", &silent,
 			"upgrade", &upgrade,
-			"version", &printVersion
+			"version", &printVersion,
+			"qrcode", &qrcode
 		);
 
 		size_t commands = 0;
@@ -103,7 +109,7 @@ int main(string[] args)
 
 			if (
 				maxDownloads != size_t.max || maxDays != size_t.max
-				|| !crypt.empty || !output.empty || fromStdin || args.length == 2
+				|| !crypt.empty || !output.empty || fromStdin || qrcode || args.length == 2
 			) commands++;
 
 			if (printVersion) commands++;
@@ -157,7 +163,7 @@ int main(string[] args)
 
 
 				try {
-					check = cast(string) std.net.curl.get(uri).chomp;
+					check = cast(string) get(uri).chomp;
 					stderr_writeln("\x1b[1m Latest version:\x1b[0m ", check, "\n");
 				}
 				catch (Exception e)
@@ -247,28 +253,31 @@ int main(string[] args)
 
 	if(showHelp)
 	{
-		stderr.writeln("\x1b[32m" ~ VERSION_EXT ~ " \x1b[0m\nFast file sharing, using transfer.sh\x1b[0m\n\n\x1b[32mUsage:\x1b[0m
-tshare <local-file-path> \x1b[2m[-o remote-file-name] [-d max-downloads] [-t time-to-live-in-days] [--crypt passphrase] [--silent]\x1b[0m
-tshare --stdin -o <remote-file-name> \x1b[2m[-d max-downloads] [-t time-to-live-in-days] [--crypt passphrase] [--silent]\x1b[0m
+		string help = "\x1b[32m" ~ VERSION_EXT ~ " \x1b[0m\nFast file sharing, using transfer.sh\x1b[0m\n\n\x1b[32mUsage:\x1b[0m
+tshare <local-file-path> \x1b[2m[OPTIONS...]\x1b[0m
+tshare --stdin -o <remote-file-name> \x1b[2m[OPTIONS...]\x1b[0m
 tshare -r <token> \x1b[2m[--silent]\x1b[0m
-tshare --upgrade
+tshare --upgrade \x1b[2m[--silent]\x1b[0m
 tshare --version
 
 \x1b[32mOptions:\x1b[0m
- \x1b[1m-d\x1b[0m             Set the max number of downloads for this file.
- \x1b[1m-t\x1b[0m             Set the lifetime of this file.
- \x1b[1m-o, --output\x1b[0m   Set the filename used for sharing.
- \x1b[1m    --stdin\x1b[0m    Read input from stdin.
- \x1b[1m-c, --crypt\x1b[0m    Crypt your file using gpg, if installed.
- \x1b[1m-s, --silent\x1b[0m   Less verbose, minimal output.
- \x1b[1m-r, --remove\x1b[0m   Delete and uploaded file, using a token.
- \x1b[1m    --upgrade\x1b[0m  Is there a new tshare version available?
+ \x1b[1m          -t\x1b[0m  <n>      Set the max number of downloads for this file.
+ \x1b[1m          -d\x1b[0m  <days>   Set the lifetime of this file.
+ \x1b[1m--output, -o\x1b[0m  <name>   Set the filename used for sharing.
+ \x1b[1m--crypt,  -c\x1b[0m           Crypt your file using gpg, if installed.
+ \x1b[1m--silent, -s\x1b[0m           Less verbose, minimal output.
+ \x1b[1m--remove, -r\x1b[0m  <token>  Delete and uploaded file, using a token.
+ \x1b[1m--qrcode    \x1b[0m           Output a QR code.
+ \x1b[1m--stdin     \x1b[0m           Read input from stdin.
+ \x1b[1m--upgrade   \x1b[0m           Is there a new tshare version available?
 
 \x1b[32mExamples:\x1b[0m
 tshare /tmp/file1.txt                \x1b[1m# Share /tmp/file1.txt\x1b[0m
 tshare -t 3 /tmp/file2.txt           \x1b[1m# This file will be deleted in 3 days\x1b[0m
 tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
-");
+";
+
+		writeln(help);
 		return 0;
 	}
 
@@ -346,7 +355,7 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 		{
 			if (!buffer.isOpen) break;
 
-			size_t done;
+			ulong done;
 			try { done = buffer.tell*100;}
 			catch(Exception e) { break; }
 
@@ -369,7 +378,7 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 	}
 
 	bool	 isEmptyFile = true;
-	size_t fileSize = file.size;
+	ulong  fileSize = file.size;
 	scope(exit) file.close();
 
 	// Build the request
@@ -481,8 +490,49 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 	if (!silent)
 	{
 		stderr_write("\r\x1b[1mUpload:\x1b[0m Completed. Yay!");
+		write("\x1b[2K\r");
+		writeln();
+
+		if (qrcode)
+		{
+			if (!canDrawQR) writeln("\x1b[2mCan't draw a QR code in this terminal :(\x1b[0m");
+			else
+			{
+				import arsd.qrcode;
+				QrCode q = QrCode(url);
+
+				immutable sotto = "\342\226\204";
+				immutable sopra = "\342\226\200";
+				immutable pieno = "\342\226\210";
+				immutable vuoto = " ";
+
+				int rows = (q.size() + 1)/2;
+
+				foreach(y; 0..rows)
+				{
+					foreach(x; 0..q.size())
+					{
+						auto y1 = y*2;
+						auto y2 = y*2+1;
+
+						if (!q[x,y1] && !q[x,y2]) 			write(pieno);
+						else if (q[x,y1] && q[x,y2])		write(vuoto);
+						else if (q[x,y2]) 					write(sopra);
+						else if (q[x,y1])  					write(sotto);
+
+					}
+					writeln();
+				}
+			}
+
+			writeln();
+		}
+
+
 		writeln("\r\x1b[1mLink:\x1b[32m ", url, " \x1b[0m");
 		writeln("\r\x1b[1mTo remove:\x1b[0m " ~ baseName(args[0]) ~ " -r ", deleteUrl["https://transfer.sh/".length .. $]);
+
+		writeln();
 	}
 	else {
 		writeln(url);
