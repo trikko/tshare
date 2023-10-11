@@ -8,6 +8,7 @@ tshare.dylib
 tshare.dll
 tshare.a
 tshare.lib
+libcurl.dll
 tshare-test-*
 *.exe
 *.pdb
