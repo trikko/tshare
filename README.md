@@ -3,8 +3,7 @@
 The fastest way to share your local files on the web (Windows / Linux / macOS), for free. \
 <sub>Powered by [transfer.sh](https://transfer.sh) online service.</sub>
 
-
-![tshare](https://github.com/trikko/tshare/assets/647157/fd66bb95-a78c-41a6-bca6-e3ba736edcab)
+![tshare](https://github.com/trikko/tshare/assets/647157/ea844e94-886a-43ed-aecd-44e09f301cba)
 
 # get tshare 🚀
 
