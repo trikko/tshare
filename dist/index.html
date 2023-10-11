@@ -151,21 +151,23 @@
 
 
 <b>Usage:</b>
-tshare <local-file-path> [-o remote-file-name] [-d max-downloads] [-t time-to-live-in-days] [--crypt passphrase] [--silent]
-tshare --stdin -o <remote-file-name> [-d max-downloads] [-t time-to-live-in-days] [--crypt passphrase] [--silent]
-tshare -r <token> [--silent]
-tshare --upgrade
+tshare &lt;local-file-path&gt; [OPTIONS ...]
+tshare --stdin -o &lt;remote-file-name&gt; [OPTIONS ...]
+tshare -r &lt;token&gt; [--silent]
+tshare --upgrade [--silent]
 tshare --version
 
 <b>Options:</b>
--d             Set the max number of downloads for this file.
--t             Set the lifetime of this file.
--o, --output   Set the filename used for sharing.
-    --stdin    Read input from stdin.
--c, --crypt    Crypt your file using gpg, if installed.
--s, --silent   Less verbose, minimal output.
--r, --remove   Delete and uploaded file, using a token.
-    --upgrade  Is there a new tshare version available?
+Options:
+          -t  &lt;n&gt;      Set the max number of downloads for this file.
+          -d  &lt;days&gt;   Set the lifetime of this file.
+--output, -o  &lt;name&gt;   Set the filename used for sharing.
+--crypt,  -c           Crypt your file using gpg, if installed.
+--silent, -s           Less verbose, minimal output.
+--remove, -r  &lt;token&gt;  Delete and uploaded file, using a token.
+--qrcode               Output a QR code.
+--stdin                Read input from stdin.
+--upgrade              Is there a new tshare version available?
 
 <b>Examples:</b>
 tshare /tmp/file1.txt                # Share /tmp/file1.txt
