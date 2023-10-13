@@ -371,6 +371,9 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 
 	if (crypt.length > 0)
 	{
+		if (output.empty)
+			destName ~= ".gpg";
+
 		stderr.write("\x1b[2K\r\x1b[1mEncrypting, please wait...\x1b[0m");
 
 		// Temporary and anonymous file, without even a name.
@@ -469,7 +472,7 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 		if (fileSize < size_t.max)
 		{
 			if (ulnow == fileSize) stderr.write("\x1b[2K\r\x1b[1mUpload completed. Waiting for link...\x1b[0m");
-			else if (curSpeed.isNaN) stderr.write(format("\x1b[2K\r\x1b[1mProgress:\x1b[0m %5.1f%% \x1b[1m", (ulnow*1.0f/fileSize)*100.0f));
+			else if (curSpeed.isNaN) stderr.write(format("\x1b[2K\r\x1b[1mProgress:\x1b[0m %5.1f%%", (ulnow*1.0f/fileSize)*100.0f));
 			else stderr.write(format("\x1b[2K\r\x1b[1mProgress:\x1b[0m %5.1f%% \x1b[1m\tSpeed:\x1b[0m %6.1f %s", (ulnow*1.0f/fileSize)*100.0f, curSpeed, um[umIdx]));
 		}
 		else
