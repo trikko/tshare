@@ -377,8 +377,32 @@ tshare /tmp/file3.txt -o hello.txt   \x1b[1m# Uploaded as \"hello.txt\"\x1b[0m
 		stderr.write("\x1b[2K\r\x1b[1mEncrypting, please wait...\x1b[0m");
 
 		// Temporary and anonymous file, without even a name.
-		auto buffer = File.tmpfile();
-		auto pid = spawnProcess(["gpg", "-c", "--batch", "--passphrase", crypt, "-o", "-"], file, buffer, File.tmpfile(), string[string].init, Config.retainStdout);
+		File buffer;
+		File ignored;
+		bool needDelete = false;
+
+		try {
+			buffer = File.tmpfile();
+			ignored = File.tmpfile();
+		} catch(Exception e) {
+			// Probably we're on an android device, so we can't use tmpfile()
+			string tmpdir = environment.get("TMPDIR");
+			buffer = File(buildPath(tmpdir, "tmp-" ~ randomUUID().toString), "w+");
+			ignored = File(buildPath(tmpdir, "ignored-" ~ randomUUID().toString), "w+");
+			needDelete = true;
+		}
+
+		// Clean up tmp files on exit if needed
+		scope(exit)
+		{
+			if (needDelete)
+			{
+				remove(buffer.name);
+				remove(ignored.name);
+			}
+		}
+
+		auto pid = spawnProcess(["gpg", "-c", "--batch", "--passphrase", crypt, "-o", "-"], file, buffer, ignored, string[string].init, Config.retainStdout);
 
 		while(!pid.tryWait.terminated)
 		{
