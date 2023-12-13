@@ -287,8 +287,8 @@ tshare --upgrade \x1b[2m[--silent]\x1b[0m
 tshare --version
 
 \x1b[32mOptions:\x1b[0m
- \x1b[1m          -t\x1b[0m  <n>      Set the max number of downloads for this file.
- \x1b[1m          -d\x1b[0m  <days>   Set the lifetime of this file.
+ \x1b[1m          -d\x1b[0m  <n>      Set the max number of downloads for this file.
+ \x1b[1m          -t\x1b[0m  <days>   Set the lifetime of this file.
  \x1b[1m--output, -o\x1b[0m  <name>   Set the filename used for sharing.
  \x1b[1m--crypt,  -c\x1b[0m           Crypt your file using gpg, if installed.
  \x1b[1m--silent, -s\x1b[0m           Less verbose, minimal output.
